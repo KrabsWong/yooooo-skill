@@ -1,4 +1,0 @@
-interface:
-  display_name: "Yooooo Git Post-Merge Cleanup"
-  short_description: "Safely sync trunk and prune merged Git branches"
-  default_prompt: "Use $yooooo-git-post-merge-cleanup after my branch has been merged to sync trunk and clean stale local and remote branches."
