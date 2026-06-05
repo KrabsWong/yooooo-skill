@@ -1,9 +1,9 @@
 ---
-name: git-post-merge-cleanup
+name: yooooo-git-post-merge-cleanup
 description: "Safely finish a Git branch after its work has been merged: verify a clean worktree, switch to the trunk branch, fetch/prune, pull the latest trunk with fast-forward only, then identify and optionally delete stale local and remote merged branches. Use when the user says a PR/branch has been merged, asks to return to main/master, pull trunk, prune branches, clean local or remote Git branches, or run post-merge Git cleanup across repositories."
 ---
 
-# Git Post-Merge Cleanup
+# Yooooo Git Post-Merge Cleanup
 
 ## Overview
 
@@ -55,25 +55,25 @@ Use `scripts/git-post-merge-cleanup.sh` when a deterministic dry run is useful.
 Default dry run and trunk sync:
 
 ```bash
-bash /path/to/git-post-merge-cleanup/scripts/git-post-merge-cleanup.sh
+bash /path/to/yooooo-git-post-merge-cleanup/scripts/git-post-merge-cleanup.sh
 ```
 
 Specify a trunk or remote:
 
 ```bash
-bash /path/to/git-post-merge-cleanup/scripts/git-post-merge-cleanup.sh --trunk main --remote origin
+bash /path/to/yooooo-git-post-merge-cleanup/scripts/git-post-merge-cleanup.sh --trunk main --remote origin
 ```
 
 Delete local merged candidates after reviewing the dry-run output:
 
 ```bash
-bash /path/to/git-post-merge-cleanup/scripts/git-post-merge-cleanup.sh --delete-local --yes
+bash /path/to/yooooo-git-post-merge-cleanup/scripts/git-post-merge-cleanup.sh --delete-local --yes
 ```
 
 Delete remote merged candidates only after explicit user approval:
 
 ```bash
-bash /path/to/git-post-merge-cleanup/scripts/git-post-merge-cleanup.sh --delete-remote --yes
+bash /path/to/yooooo-git-post-merge-cleanup/scripts/git-post-merge-cleanup.sh --delete-remote --yes
 ```
 
 ## Reporting
