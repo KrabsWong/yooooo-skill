@@ -17,6 +17,8 @@ This repository stores portable Agent Skills.
 - Keep frontmatter portable: prefer only `name`, `description`, `license`, `compatibility`, and `metadata`.
 - Avoid agent-specific config files inside skill directories unless the user explicitly asks for that agent integration.
 - Put helper scripts in `scripts/`, optional documentation in `references/`, and static resources in `assets/`.
+- Design first-party skills to be portable across agents by default. Do not assume Codex, Claude Code, OpenCode, Pi, or any other single agent runtime unless the skill explicitly targets that integration.
+- When a skill needs user-provided environment variables, prefix variable names with the skill namespace, such as `YOOOOO_`, to avoid collisions with the user's existing shell, CI, or agent environment.
 
 ## Script Rules
 

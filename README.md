@@ -17,6 +17,7 @@ First-party skills target the Agent Skills format: a directory containing `SKILL
 | Skill | Purpose | Path |
 | --- | --- | --- |
 | `yooooo-git-post-merge-cleanup` | Sync trunk after a merge and safely prune merged Git branches. | `yooooo-git-post-merge-cleanup` |
+| `yooooo-telegram-message-channel` | Send reports, alerts, and automation outputs to Telegram channels or chats. | `yooooo-telegram-message-channel` |
 
 ## Install
 
