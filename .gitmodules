@@ -1,3 +1,6 @@
 [submodule "external/tw93/Waza"]
 	path = external/tw93/Waza
 	url = git@github.com:tw93/Waza.git
+[submodule "external/JimLiu/baoyu-skills"]
+	path = external/JimLiu/baoyu-skills
+	url = git@github.com:JimLiu/baoyu-skills.git

@@ -146,6 +146,40 @@ function shortText(value, maxLength = 110) {
   return value.length > maxLength ? `${value.slice(0, maxLength - 3)}...` : value;
 }
 
+function terminalRows() {
+  return Math.max(16, process.stdout.rows || 24);
+}
+
+function terminalColumns() {
+  return Math.max(60, process.stdout.columns || 100);
+}
+
+function detailLineCount(detail) {
+  if (!detail) {
+    return 0;
+  }
+
+  const width = Math.max(20, terminalColumns() - 4);
+  return detail
+    .split('\n')
+    .reduce((count, line) => count + Math.max(1, Math.ceil([...line].length / width)), 1);
+}
+
+function visibleListCount({detail, hasError}) {
+  const reservedRows = 13 + detailLineCount(detail) + (hasError ? 1 : 0);
+  return Math.max(4, terminalRows() - reservedRows);
+}
+
+function visibleRange(cursor, total, count) {
+  const safeCount = Math.min(total, count);
+  const half = Math.floor(safeCount / 2);
+  const start = Math.min(Math.max(0, cursor - half), Math.max(0, total - safeCount));
+  return {
+    start,
+    end: Math.min(total, start + safeCount),
+  };
+}
+
 function hasSkillFile(dir) {
   try {
     return fs.statSync(path.join(dir, 'SKILL.md')).isFile();
@@ -163,6 +197,38 @@ function parseFrontmatterValue(value) {
     return trimmed.slice(1, -1).replaceAll('\\"', '"').replaceAll("\\'", "'");
   }
   return trimmed;
+}
+
+function parseFrontmatterBlock(lines, startIndex, marker) {
+  const values = [];
+  let blockIndent = null;
+  let index = startIndex + 1;
+
+  for (; index < lines.length; index += 1) {
+    const line = lines[index];
+    if (/^[A-Za-z0-9_-]+:\s*/.test(line)) {
+      break;
+    }
+
+    if (!line.trim()) {
+      values.push('');
+      continue;
+    }
+
+    const indent = line.match(/^(\s+)/)?.[1].length;
+    if (!indent) {
+      break;
+    }
+
+    blockIndent ??= indent;
+    values.push(line.slice(Math.min(blockIndent, line.length)));
+  }
+
+  const text = marker.startsWith('|')
+    ? values.join('\n').trim()
+    : values.map((line) => line.trim()).filter(Boolean).join(' ');
+
+  return {text, nextIndex: index - 1};
 }
 
 function readSkillMetadata(skillPath) {
@@ -185,15 +251,37 @@ function readSkillMetadata(skillPath) {
 
   const metadata = {};
   const frontmatter = content.slice(4, end).split('\n');
-  for (const line of frontmatter) {
+  for (let index = 0; index < frontmatter.length; index += 1) {
+    const line = frontmatter[index];
     const match = line.match(/^([A-Za-z0-9_-]+):\s*(.*)$/);
     if (!match) {
       continue;
     }
-    metadata[match[1]] = parseFrontmatterValue(match[2]);
+    const marker = match[2].trim();
+    if (/^[>|][+-]?$/.test(marker)) {
+      const block = parseFrontmatterBlock(frontmatter, index, marker);
+      metadata[match[1]] = block.text;
+      index = block.nextIndex;
+    } else {
+      metadata[match[1]] = parseFrontmatterValue(match[2]);
+    }
   }
 
   return metadata;
+}
+
+function skillSource(skillPath, origin) {
+  if (origin !== 'external') {
+    return 'local';
+  }
+
+  const relative = path.relative(path.join(repoRoot, 'external'), skillPath);
+  const parts = relative.split(path.sep).filter(Boolean);
+  if (parts.length >= 2) {
+    return `${parts[0]}/${parts[1]}`;
+  }
+
+  return 'external';
 }
 
 function buildSkill(skillPath, origin) {
@@ -202,6 +290,7 @@ function buildSkill(skillPath, origin) {
     name: path.basename(skillPath),
     path: skillPath,
     origin,
+    source: skillSource(skillPath, origin),
     description: metadata.description || '',
   };
 }
@@ -262,7 +351,7 @@ function formatSkillList(skills) {
   return skills
     .map((skill, index) => {
       const number = String(index + 1).padStart(2, ' ');
-      const summary = `${number}) ${skill.name.padEnd(34, ' ')} ${skill.origin.padEnd(12, ' ')} ${relPath(skill.path)}`;
+      const summary = `${number}) ${skill.name.padEnd(34, ' ')} ${skill.origin.padEnd(12, ' ')} ${skill.source.padEnd(22, ' ')} ${relPath(skill.path)}`;
       return skill.description ? `${summary}\n    ${skill.description}` : summary;
     })
     .join('\n');
@@ -687,7 +776,7 @@ function Header({skills}) {
   );
 }
 
-const footerKeyPattern = /\b(?:Ctrl\+C|Enter|Space|arrows|a|b|n|q|r)\b/g;
+const footerKeyPattern = /\b(?:Ctrl\+C|Enter|Space|PageUp|PageDown|arrows|a|b|n|q|r)\b/g;
 
 function Footer({text = 'Use arrows to move, Enter to continue, Ctrl+C to quit.'}) {
   const parts = [];
@@ -769,6 +858,10 @@ function MultiSelect({items, onSubmit, onBack}) {
   const [selected, setSelected] = useState(() => new Set());
   const [error, setError] = useState('');
   const currentItem = items[cursor];
+  const itemCount = visibleListCount({detail: currentItem?.detail, hasError: Boolean(error)});
+  const range = visibleRange(cursor, items.length, itemCount);
+  const visibleItems = items.slice(range.start, range.end);
+  const isClipped = range.start > 0 || range.end < items.length;
 
   useInput((input, key) => {
     if (input === 'b' && onBack) {
@@ -777,6 +870,10 @@ function MultiSelect({items, onSubmit, onBack}) {
       setCursor((value) => Math.max(0, value - 1));
     } else if (key.downArrow) {
       setCursor((value) => Math.min(items.length - 1, value + 1));
+    } else if (key.pageUp) {
+      setCursor((value) => Math.max(0, value - itemCount));
+    } else if (key.pageDown) {
+      setCursor((value) => Math.min(items.length - 1, value + itemCount));
     } else if (input === ' ') {
       setSelected((current) => {
         const next = new Set(current);
@@ -806,7 +903,15 @@ function MultiSelect({items, onSubmit, onBack}) {
   return h(
     Box,
     {flexDirection: 'column'},
-    items.map((item, index) => {
+    isClipped
+      ? h(
+          Text,
+          {dimColor: true},
+          `Showing ${range.start + 1}-${range.end} of ${items.length}`,
+        )
+      : null,
+    visibleItems.map((item, visibleIndex) => {
+      const index = range.start + visibleIndex;
       const checked = selected.has(item.value) ? '[x]' : '[ ]';
       return h(
         Text,
@@ -976,7 +1081,7 @@ function InstallerApp({skills}) {
     () =>
       skills.map((skill, index) => ({
         value: String(index),
-        label: `${skill.name.padEnd(28, ' ')} ${skill.origin.padEnd(12, ' ')} ${shortText(skill.description || relPath(skill.path), 72)}`,
+        label: `${skill.name.padEnd(34, ' ')} ${skill.origin.padEnd(12, ' ')} ${skill.source}`,
         detailTitle: skill.name,
         detail: `Path: ${relPath(skill.path)}\nDescription: ${skill.description || 'No description in SKILL.md.'}`,
       })),
@@ -1068,7 +1173,7 @@ function InstallerApp({skills}) {
   if (step === 'skills') {
     return h(
       Page,
-      {skills, title: 'Choose specific skills', footer: 'Space toggles, a selects all, n clears, Enter continues.'},
+      {skills, title: 'Choose specific skills', footer: 'Space toggles, a all, n none, PageUp/PageDown jumps, Enter continues.'},
       h(MultiSelect, {
         key: 'skill-select',
         items: skillItems,
@@ -1083,7 +1188,7 @@ function InstallerApp({skills}) {
   if (step === 'installedTargets') {
     return h(
       Page,
-      {skills, title: 'View installed skills where?', footer: 'Space toggles, a selects all, n clears, b returns home, Enter continues.'},
+      {skills, title: 'View installed skills where?', footer: 'Space toggles, a all, n none, PageUp/PageDown jumps, b back, Enter continues.'},
       h(MultiSelect, {
         key: 'installed-target-select',
         items: targetItems,
@@ -1166,7 +1271,7 @@ function InstallerApp({skills}) {
   if (step === 'targets') {
     return h(
       Page,
-      {skills, title: 'Install where?', footer: 'Space toggles, a selects all, n clears, b goes back, Enter continues.'},
+      {skills, title: 'Install where?', footer: 'Space toggles, a all, n none, PageUp/PageDown jumps, b back, Enter continues.'},
       h(MultiSelect, {
         key: 'install-target-select',
         items: targetItems,
