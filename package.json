@@ -1,0 +1,23 @@
+{
+  "name": "yooooo-skills",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "description": "Portable Agent Skills managed with symlink installers.",
+  "bin": {
+    "yooooo-skills-install": "./scripts/install-skills.mjs"
+  },
+  "scripts": {
+    "build:bin": "bun build --compile --target=bun --outfile=bin/yooooo-skills-install scripts/install-skills.mjs",
+    "install-skills": "node scripts/install-skills.mjs",
+    "list-skills": "node scripts/install-skills.mjs --list",
+    "installed-skills": "node scripts/install-skills.mjs --installed"
+  },
+  "engines": {
+    "node": ">=20"
+  },
+  "dependencies": {
+    "ink": "^5.2.1",
+    "react": "^18.3.1"
+  }
+}

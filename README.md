@@ -1,16 +1,6 @@
 # yooooo-skills
 
-Personal Agent Skills managed as independent, portable skill directories.
-
-## Repository Layout
-
-- `<namespace>-<skill-name>/` contains first-party skills maintained in this repository.
-- `external/<source>/<repo>/` is reserved for third-party skill repositories added as Git submodules.
-- Keep each skill self-contained. Do not mix files from different skills in one directory.
-
-This repository uses `yooooo-` as the namespace prefix for first-party skills. The prefix makes locally installed personal skills easy to distinguish from bundled, team, or community skills.
-
-First-party skills target the Agent Skills format: a directory containing `SKILL.md`, plus optional `scripts/`, `references/`, and `assets/` directories. Avoid agent-specific frontmatter or product-specific config inside skill directories unless a skill explicitly needs it.
+Portable Agent Skills managed from one repository and installed with symlinks.
 
 ## Skills
 
@@ -19,40 +9,53 @@ First-party skills target the Agent Skills format: a directory containing `SKILL
 | `yooooo-git-post-merge-cleanup` | Sync trunk after a merge and safely prune merged Git branches. | `yooooo-git-post-merge-cleanup` |
 | `yooooo-telegram-message-channel` | Send reports, alerts, and automation outputs to Telegram channels or chats. | `yooooo-telegram-message-channel` |
 
-## Install
+## Quick Start
 
-Keep this repository as the source of truth and symlink skill directories into each agent's global skill location.
-
-Run the interactive installer:
+Clone with submodules, install dependencies, then open the TUI installer:
 
 ```bash
-./scripts/install-skills.sh
+git clone --recurse-submodules git@github.com:KrabsWong/yooooo-skill.git
+cd yooooo-skill
+npm install
+npm run install-skills
 ```
 
-The installer discovers:
+The installer is a Node TUI powered by Ink. It can:
 
-- first-party skills at `<namespace>-<skill-name>/`
-- third-party skills under `external/`, including repositories such as `external/tw93/Waza/skills/*`
+- install all, first-party, external, or selected skills
+- show skill descriptions from `SKILL.md` before installation
+- install to global agent locations, project-local `.agents/skills`, or a custom directory
+- run in dry-run mode before writing symlinks
+- inspect installed skills with `View installed skills`
 
-It can install to global agent locations, a project-local `<project>/.agents/skills` directory, or a custom skills directory. Existing symlinks are updated. Existing real files or directories are skipped.
+Existing symlinks are updated. Existing real files or directories are skipped.
 
-Common non-interactive examples:
+## Commands
 
 ```bash
+# Open the interactive installer.
+npm run install-skills
+
 # List discovered skills.
-./scripts/install-skills.sh --list
+npm run list-skills
+
+# View installed skills in known global locations.
+npm run installed-skills
+
+# View installed skills for one project.
+npm run installed-skills -- --project /path/to/project
 
 # Install all discovered skills to Codex.
-./scripts/install-skills.sh --all --global codex --yes
+npm run install-skills -- --all --global codex --yes
 
 # Install only first-party skills to all known global locations.
-./scripts/install-skills.sh --first-party --global all --yes
+npm run install-skills -- --first-party --global all --yes
 
 # Install one external skill into a project-local skill directory.
-./scripts/install-skills.sh --skill write --project /path/to/project --yes
+npm run install-skills -- --skill write --project /path/to/project --yes
 
 # Preview without writing anything.
-./scripts/install-skills.sh --all --global codex --dry-run
+npm run install-skills -- --all --global codex --dry-run
 ```
 
 Common global locations:
@@ -60,65 +63,62 @@ Common global locations:
 | Agent | Global skill directory |
 | --- | --- |
 | Agent-compatible shared path | `~/.agents/skills` |
+| Codex | `${CODEX_HOME:-$HOME/.codex}/skills` |
 | Claude Code | `~/.claude/skills` |
 | OpenCode | `~/.config/opencode/skills` |
 | Pi | `~/.pi/agent/skills` |
-| Codex | `${CODEX_HOME:-$HOME/.codex}/skills` |
 
-Install one skill manually with a symlink:
+## Standalone Binary
 
-```bash
-target="$HOME/.agents/skills"
-mkdir -p "$target"
-ln -sfn "$PWD/yooooo-git-post-merge-cleanup" "$target/yooooo-git-post-merge-cleanup"
-```
-
-Install all first-party skills to one target:
+Build a local standalone executable with Bun:
 
 ```bash
-target="$HOME/.agents/skills"
-mkdir -p "$target"
-for skill_md in "$PWD"/*/SKILL.md; do
-  [ -f "$skill_md" ] || continue
-  skill_dir="$(dirname "$skill_md")"
-  ln -sfn "$skill_dir" "$target/$(basename "$skill_dir")"
-done
+npm run build:bin
 ```
 
-Install all first-party skills to several agents:
+This writes `bin/yooooo-skills-install`. The generated file embeds the Bun runtime and the TUI code. It is not a shell script, and it does not require Node or Bun at runtime.
+
+`bin/` is ignored by Git because the executable is large, platform-specific, and reproducible from source. If you want to distribute it, attach it to a GitHub Release instead of committing it to the repository.
+
+Run it directly:
 
 ```bash
-for target in \
-  "$HOME/.agents/skills" \
-  "$HOME/.claude/skills" \
-  "$HOME/.config/opencode/skills" \
-  "$HOME/.pi/agent/skills" \
-  "${CODEX_HOME:-$HOME/.codex}/skills"
-do
-  mkdir -p "$target"
-  for skill_md in "$PWD"/*/SKILL.md; do
-    [ -f "$skill_md" ] || continue
-    skill_dir="$(dirname "$skill_md")"
-    ln -sfn "$skill_dir" "$target/$(basename "$skill_dir")"
-  done
-done
+./bin/yooooo-skills-install
+./bin/yooooo-skills-install --list
+./bin/yooooo-skills-install --all --global codex --dry-run
 ```
+
+The binary still needs this repository as the skill source because installation creates symlinks to directories such as `yooooo-*` and `external/*/skills/*`. Run it from this repository, keep it under `bin/`, or point it at the repository explicitly:
+
+```bash
+YOOOOO_SKILLS_REPO=/path/to/yooooo-skills ./bin/yooooo-skills-install
+```
+
+### Release Binary
+
+Binary releases are built by GitHub Actions only when pushing a `bin-v*` tag:
+
+```bash
+git tag bin-v0.1.0
+git push origin bin-v0.1.0
+```
+
+The workflow builds `yooooo-skills-install-darwin-arm64.tar.gz` and attaches it to the tag's GitHub Release. Normal skill-only changes on `main` do not run `build:bin`.
+
+## Repository Layout
+
+- `<namespace>-<skill-name>/` contains first-party skills maintained in this repository.
+- `external/<source>/<repo>/` is reserved for third-party skill repositories added as Git submodules.
+- Each skill directory must contain `SKILL.md`.
+- Optional helper scripts, docs, and static files live in `scripts/`, `references/`, and `assets/` inside each skill directory.
 
 ## Third-Party Skills
 
-Submodules are a good fit when you want to pin community skills to exact upstream commits and update them deliberately:
+Submodules are used to pin community skill repositories to exact upstream commits:
 
 ```bash
 git submodule add <repo-url> external/<owner>/<repo>
 git submodule update --init --recursive
 ```
-
-Clone this repository with submodules:
-
-```bash
-git clone --recurse-submodules git@github.com:KrabsWong/yooooo-skill.git
-```
-
-Use `git subtree` instead if you want third-party skill files copied into this repository without nested Git metadata. Submodules are cleaner for tracking upstream ownership; subtree is simpler for consumers who dislike submodule workflows.
 
 Review third-party skill contents before installing them. Skills can include executable scripts and instructions that direct an agent to run commands.

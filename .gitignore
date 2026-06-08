@@ -1,1 +1,4 @@
 .DS_Store
+*.bun-build
+/bin/
+node_modules/
