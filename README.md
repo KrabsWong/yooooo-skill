@@ -23,6 +23,38 @@ First-party skills target the Agent Skills format: a directory containing `SKILL
 
 Keep this repository as the source of truth and symlink skill directories into each agent's global skill location.
 
+Run the interactive installer:
+
+```bash
+./scripts/install-skills.sh
+```
+
+The installer discovers:
+
+- first-party skills at `<namespace>-<skill-name>/`
+- third-party skills under `external/`, including repositories such as `external/tw93/Waza/skills/*`
+
+It can install to global agent locations, a project-local `<project>/.agents/skills` directory, or a custom skills directory. Existing symlinks are updated. Existing real files or directories are skipped.
+
+Common non-interactive examples:
+
+```bash
+# List discovered skills.
+./scripts/install-skills.sh --list
+
+# Install all discovered skills to Codex.
+./scripts/install-skills.sh --all --global codex --yes
+
+# Install only first-party skills to all known global locations.
+./scripts/install-skills.sh --first-party --global all --yes
+
+# Install one external skill into a project-local skill directory.
+./scripts/install-skills.sh --skill write --project /path/to/project --yes
+
+# Preview without writing anything.
+./scripts/install-skills.sh --all --global codex --dry-run
+```
+
 Common global locations:
 
 | Agent | Global skill directory |
@@ -33,7 +65,7 @@ Common global locations:
 | Pi | `~/.pi/agent/skills` |
 | Codex | `${CODEX_HOME:-$HOME/.codex}/skills` |
 
-Install one skill with a symlink:
+Install one skill manually with a symlink:
 
 ```bash
 target="$HOME/.agents/skills"

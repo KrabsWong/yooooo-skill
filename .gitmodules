@@ -1,0 +1,3 @@
+[submodule "external/tw93/Waza"]
+	path = external/tw93/Waza
+	url = git@github.com:tw93/Waza.git
