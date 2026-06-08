@@ -122,3 +122,9 @@ git submodule update --init --recursive
 ```
 
 Review third-party skill contents before installing them. Skills can include executable scripts and instructions that direct an agent to run commands.
+
+## License
+
+This repository's first-party code and skills are licensed under `AGPL-3.0-only`. See [LICENSE](LICENSE).
+
+Third-party skills under `external/` are Git submodules and remain governed by their own upstream licenses.
