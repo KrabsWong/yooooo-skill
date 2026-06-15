@@ -4,6 +4,9 @@
 [submodule "external/JimLiu/baoyu-skills"]
 	path = external/JimLiu/baoyu-skills
 	url = git@github.com:JimLiu/baoyu-skills.git
+[submodule "external/op7418/guizang-ppt-skill"]
+	path = external/op7418/guizang-ppt-skill
+	url = https://github.com/op7418/guizang-ppt-skill.git
 [submodule "external/tw93/Kami"]
 	path = external/tw93/Kami
 	url = https://github.com/tw93/Kami.git
