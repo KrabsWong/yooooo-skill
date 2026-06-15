@@ -36,6 +36,11 @@ const knownGlobalTargets = [
     dir: path.join(homeDir, '.config', 'opencode', 'skills'),
   },
   {
+    key: 'codebuddy',
+    name: 'CodeBuddy Code global',
+    dir: path.join(homeDir, '.codebuddy', 'skills'),
+  },
+  {
     key: 'pi',
     name: 'Pi global',
     dir: path.join(homeDir, '.pi', 'agent', 'skills'),
@@ -60,7 +65,7 @@ Options:
   --first-party          Install root-level first-party skills.
   --external             Install skills discovered under external/.
   --skill NAME           Install one skill by directory name. Repeatable.
-  --global AGENT         shared, codex, claude, opencode, pi, or all.
+  --global AGENT         shared, codex, claude, opencode, codebuddy, pi, or all.
   --project PATH         Install to PATH/.agents/skills.
   --target PATH          Install to an explicit skills directory.
   --dry-run              Print actions without creating links.

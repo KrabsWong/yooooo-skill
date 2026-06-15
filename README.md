@@ -66,6 +66,7 @@ Common global locations:
 | Codex | `${CODEX_HOME:-$HOME/.codex}/skills` |
 | Claude Code | `~/.claude/skills` |
 | OpenCode | `~/.config/opencode/skills` |
+| CodeBuddy Code | `~/.codebuddy/skills` |
 | Pi | `~/.pi/agent/skills` |
 
 ## Standalone Binary
