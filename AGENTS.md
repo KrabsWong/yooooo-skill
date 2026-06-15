@@ -1,6 +1,7 @@
 # AGENTS.md
 
-This repository stores portable Agent Skills.
+This repository stores the user's first-party skills and imported external skills.
+The expected output of work in this repository is a reusable skill, or a focused change to an existing skill.
 
 ## Repository Rules
 
@@ -8,6 +9,14 @@ This repository stores portable Agent Skills.
 - Use `yooooo-` as the namespace prefix for first-party skills.
 - Reserve `external/` for third-party skill repositories, usually as Git submodules.
 - Do not auto-install or modify third-party skills under `external/` unless explicitly requested.
+
+## Skill Authoring Rules
+
+- Write skills for a class of recurring tasks, not for a single one-off case.
+- Distill concrete examples into reusable workflows, checks, decision rules, or templates.
+- Do not hardcode highly specific names, dates, companies, people, tickers, incidents, product releases, or one-time facts into the core skill instructions unless the skill's purpose is explicitly about that entity.
+- If specific names or events are useful, put them in examples or references and label them as examples, not as universal rules.
+- When updating a skill from a new sample, ask what general behavior the sample reveals before adding new instructions.
 
 ## Skill Compatibility
 

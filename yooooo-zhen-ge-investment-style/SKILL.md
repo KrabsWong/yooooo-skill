@@ -1,53 +1,54 @@
 ---
 name: yooooo-zhen-ge-investment-style
-description: Use when evaluating U.S. equity market trends, AI and technology themes, individual targets, portfolio exposure, buy/sell/hedge decisions, or weekly market reports through the investment framework distilled from Zhen Ge's 2026 weekly reports. Helps convert market evidence into a structured bull/bear scorecard, position band, watchlist, and invalidation rules.
+description: 用于按照震哥 2026 年周报中提炼出的投资框架，评估美股市场趋势、AI 与科技主题、个股标的、组合仓位、买卖/对冲决策或周报内容。将市场证据整理为结构化的多空评分、市场状态判断、仓位区间、观察清单和失效条件。
 ---
 
-# Zhen Ge Investment Style
+# 震哥投资风格
 
-Use this skill as an analysis framework, not as financial advice. Always state the time horizon, data freshness, uncertainty, and invalidation conditions.
+将这个 skill 作为分析框架使用，不作为投资建议。输出时始终说明时间周期、数据新鲜度、不确定性和失效条件。
 
-## Quick Workflow
+## 快速工作流
 
-1. Define the question: market index, sector/theme, or individual target; short-term trade or medium-term trend.
-2. Build an evidence table across eight dimensions:
-   - Price trend and technicals
-   - Valuation and earnings
-   - Macro and inflation
-   - Rates, liquidity, and credit
-   - Sentiment and positioning
-   - Fund flows and market structure
-   - AI/technology fundamental drivers
-   - Event and tail risks
-3. For each dimension, list both bullish and bearish evidence before concluding.
-4. Classify the regime:
-   - Structural bull pullback
-   - Crowded/overheated advance
-   - Rangebound high-volatility market
-   - Local tail-risk shock
-   - Systemic risk
-5. Convert the regime into a position band, add/reduce plan, hedges, and watchlist.
+1. 明确问题：分析对象是指数、行业/主题还是个股；判断的是短线交易还是中期趋势。
+2. 围绕八个维度建立证据表：
+   - 价格趋势和技术面
+   - 估值和盈利
+   - 宏观和通胀
+   - 利率、流动性和信用
+   - 情绪和仓位
+   - 资金流和市场结构
+   - AI/科技基本面驱动
+   - 事件和尾部风险
+3. 每个维度先列出多头证据和空头证据，再形成结论。
+4. 判断当前市场状态：
+   - 结构性牛市回调
+   - 拥挤/过热上涨
+   - 高波动震荡市
+   - 局部尾部冲击
+   - 系统性风险
+5. 将市场状态转化为仓位区间、加减仓计划、对冲计划和观察清单。
 
-Read [references/rules.md](references/rules.md) when you need the full rulebook, indicator checklist, or output template.
+需要完整规则、指标清单或输出模板时，读取 [references/rules.md](references/rules.md)。
 
-## Core Rules
+## 核心规则
 
-- Use indexes as the core and individual stocks as satellites. Prefer QQQ/Nasdaq 100/S&P 500 exposure for the main trend; keep single-name risk sized and evidence-based.
-- Treat 10%+ index drawdowns as opportunities only when systemic risk is absent, earnings and AI/capex fundamentals remain intact, valuation has reset, and sentiment/positioning has washed out.
-- Add exposure in preplanned tranches, not from headlines. Use drawdown levels, valuation percentiles, 200-day moving averages, and sentiment extremes as anchors.
-- Reduce beta after violent rebounds, extreme overbought readings, or stretched valuation. Clear calls/levered ETF exposure first, then trim targets that reached valuation or price objectives.
-- Respect rates as the denominator. Rising 10Y/30Y yields, hawkish Fed repricing, and weak Treasury auctions can cap equity multiples even when earnings are strong.
-- Use hedges tactically when tail risk is unresolved: QQQ puts, VIX/VIXY-style exposure, or partial short-term hedges. Remove hedges when the event path improves or the market already prices the risk.
-- For bonds, treat TLT as a tactical cash substitute only when 10Y yield is attractive relative to the equity opportunity set; exit when yields normalize or better equity opportunities appear.
-- For AI targets, require evidence beyond narrative: capex revisions, ARR, order backlog, token economics, deployment cadence, margin impact, and supply-chain transmission.
+- 以指数作为核心仓位，个股作为卫星仓位。主趋势优先用纳指 100、标普 500 等指数暴露表达；个股风险要有证据支撑并控制规模。
+- 只有在系统性风险缺席、盈利和 AI/资本开支基本面仍完整、估值已经重置、情绪/仓位已经出清时，才把指数 10% 以上回撤视为机会。
+- 加仓应基于预先设定的分批计划，而不是基于新闻标题。用回撤幅度、估值分位、200 日均线和情绪极值作为锚点。
+- 暴力反弹、严重超买或估值拉伸后降低 beta。先清理期权、杠杆 ETF 等高弹性仓位，再减持达到估值或价格目标的标的。
+- 尊重利率这个“分母”。即使盈利强劲，10 年/30 年美债收益率上行、联储预期转鹰或国债拍卖走弱，也会压制权益估值倍数。
+- 尾部风险未解除时，可以战术性使用对冲：指数 put、波动率相关工具或部分短期对冲。当事件路径改善或市场已经充分定价风险时，移除对冲。
+- 对债券类工具，只在长期利率相对权益机会有吸引力时，将其作为战术性现金替代；收益率正常化或出现更好的权益机会时退出。
+- 对 AI/科技标的，要求叙事以外的证据：资本开支修订、ARR、订单积压、单位经济性、部署节奏、利润率影响和供应链传导。
+- 高波动震荡市中，以估值为锚：只有预选标的跌到有吸引力的位置才加仓，反弹到估值或价格目标时减仓，优先选择处于早周期、接近潜在拐点或有望成为最终赢家的方向。
 
-## Output Shape
+## 输出结构
 
-Return:
+返回：
 
-1. Regime call and confidence.
-2. Evidence table with bullish, bearish, and neutral factors.
-3. Position band and action plan.
-4. Add/reduce/hedge triggers.
-5. Invalidation signals.
-6. Data that must be refreshed before acting.
+1. 市场状态判断和置信度。
+2. 包含多头、空头和中性因素的证据表。
+3. 仓位区间和行动计划。
+4. 加仓、减仓、对冲触发条件。
+5. 失效信号。
+6. 行动前必须刷新的数据。

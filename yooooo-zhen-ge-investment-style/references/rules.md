@@ -1,222 +1,244 @@
-# Zhen Ge Investment Style Rulebook
+# 震哥投资风格规则手册
 
-This rulebook was distilled from 19 long-image weekly reports in `weekly-report/`, dated from 2026-01-11 through 2026-06-07. It is a style framework for analysis, not a recommendation to trade.
+这份规则手册基于 `weekly-report/` 中 2026-01-11 至 2026-06-14 的 20 篇长图周报提炼而来。它是分析风格框架，不是交易建议。
 
-## Observed Style
+## 观察到的风格
 
-Zhen Ge's style is best described as "data-anchored structural growth with tactical contrarian execution."
+震哥的风格可以概括为：“以数据为锚的结构性成长判断，加上战术性逆向执行。”
 
-- He starts from a medium-term structural thesis, mainly AI, technology productivity, hyperscaler capex, and U.S. corporate earnings.
-- He separates "direction" from "path": the medium-term direction can remain up while the short-term path is volatile.
-- He uses indexes as the core exposure and rotates satellites around AI, software, semiconductors, cloud, optical, data center, security, health care, and other confirmed earnings themes.
-- He is willing to run high beta when valuation, sentiment, and fundamentals align, but he cuts beta quickly when valuation/crowding/rates become hostile.
-- He reads markets through both numerator and denominator: earnings/capex/growth are the numerator; rates, inflation, liquidity, and credit are the denominator.
-- He does not trade headlines directly. He watches how markets price a headline, whether risk is already discounted, and whether uncertainty has a clear path to resolution.
-- He frequently uses a "bullish evidence vs bearish evidence" checklist before forming a conclusion.
+- 从中期结构性主线出发，重点关注 AI、科技生产力、超大云厂商资本开支和美国企业盈利。
+- 区分“方向”和“路径”：中期方向可以仍然向上，但短期路径可能非常波动。
+- 以指数作为核心仓位，并围绕 AI、软件、半导体、云、光通信、数据中心、安全、医疗等经过盈利验证的主题配置卫星仓位。
+- 当估值、情绪和基本面配合时，愿意承担较高 beta；但当估值、拥挤度或利率环境变得不利时，会快速降低 beta。
+- 同时看分子和分母：盈利、资本开支和增长是分子；利率、通胀、流动性和信用是分母。
+- 不直接交易新闻标题，而是观察市场如何定价新闻、风险是否已经被反映、以及不确定性是否存在清晰的解决路径。
+- 形成结论前，经常使用“多头证据 vs 空头证据”的检查清单。
+- 在高波动震荡市中，以估值作为交易锚：当预选标的跌到有吸引力的位置时小幅分批加仓；当反弹达到估值或价格目标时减仓。
 
-## What Is Worth Borrowing
+## 值得复用的原则
 
-- Build plans before volatility arrives. Use drawdown levels, valuation bands, and hedge triggers before emotions rise.
-- Separate systemic risk from local tail risk. Local shocks can be buyable; systemic credit/liquidity deterioration is different.
-- Watch breadth, positioning, and flows, not just index price. A strong index with narrow breadth and crowded AI exposure carries different risk than a broad advance.
-- Let volatility create entry points, but only when medium-term fundamentals are intact.
-- Take profits from leverage first. Calls, QLD/levered ETF exposure, and crowded winners are reduced before core index exposure.
-- Track both "AI demand" and "AI economics": capex, ARR, orders, token cost, inference margin, and customer ROI all matter.
-- Treat rates as a hard constraint on valuation. High earnings growth can coexist with multiple compression if 10Y/30Y yields rise.
+- 在波动到来前先制定计划。用回撤区间、估值区间和对冲触发条件提前约束情绪。
+- 区分系统性风险和局部尾部风险。局部冲击可能提供买点；系统性信用或流动性恶化是另一类问题。
+- 不只看指数价格，也要看市场宽度、仓位和资金流。少数 AI 权重股推动的强指数，风险含义不同于广泛上涨。
+- 让波动创造入场点，但前提是中期基本面没有破坏。
+- 优先从杠杆仓位中获利了结。期权、QLD/杠杆 ETF 和拥挤赢家，应先于核心指数仓位被削减。
+- 同时跟踪“AI 需求”和“AI 经济性”：资本开支、ARR、订单、token 成本、推理利润率和客户 ROI 都重要。
+- 把利率视为估值的硬约束。即使盈利增长强劲，如果 10 年/30 年美债收益率上行，也可能出现估值倍数压缩。
+- 不把高估值自动等同于看跌。必须结合 EPS 修订、利率、市场宽度、情绪和事件风险，再决定是减仓、持有还是逢弱加仓。
 
-## Indicator Checklist
+## 指标检查清单
 
-### Market and Technical
+### 市场和技术面
 
-- Nasdaq 100, QQQ, S&P 500, S&P equal-weight, Russell 2000, SOX, momentum vs low-volatility factors.
-- QQQ/Nasdaq 100 drawdown from recent high.
-- 200-day moving average and whether major indexes are above or below it.
-- RSI(6) for short-term overbought/oversold; RSI above 90 was treated as severe overbought.
-- Breadth, equal-weight performance, sector heatmaps, and concentration of contribution by top stocks.
+- 纳指 100、QQQ、标普 500、标普等权、罗素 2000、SOX、动量因子和低波动因子。
+- QQQ/纳指 100 距离近期高点的回撤幅度。
+- 200 日均线，以及主要指数位于 200 日均线上方还是下方。
+- RSI(6) 判断短期超买/超卖；RSI 高于 90 曾被视为严重超买。
+- 市场宽度、等权表现、行业热力图，以及头部股票对指数贡献的集中度。
 
-### Valuation and Earnings
+### 估值和盈利
 
-- Nasdaq 100 five-year valuation percentile.
-- S&P 500 TTM and NTM P/E.
-- S&P 500 forward P/E around 22 as a trim zone; around 23 as a major de-risk zone.
-- Individual-stock forward P/E, especially 2027 P/E; above 30x requires stronger proof or profit-taking.
-- EPS growth, EPS revision ratio, earnings surprise rate, and misses.
-- Mag 7 vs S&P 493 earnings contribution and revision trends.
+- 纳指 100 的五年估值分位。
+- 标普 500 的 TTM 和 NTM P/E。
+- 标普 500 前瞻 P/E 接近 22 倍时进入减仓观察区；接近 23 倍时进入更重要的降风险区。
+- 个股前瞻 P/E，尤其是 2027 年 P/E；高于 30 倍需要更强证据支撑，或考虑获利了结。
+- EPS 增长、周度一致预期 EPS 变化、EPS 修订比例、盈利超预期率和不及预期情况。
+- 七巨头 vs 标普 493 的盈利贡献和修订趋势。
 
-### Macro
+### 宏观
 
-- CPI, PPI, PCE, inflation expectations.
-- Nonfarm payrolls, unemployment, initial claims, continuing claims, JOLTS, ADP, average hourly earnings.
-- ISM manufacturing/services, new orders, PMI, GDP.
-- Consumer health: card spending, retail sales, travel demand, discretionary stress.
+- CPI、PPI、PCE、通胀预期。
+- 非农就业、失业率、初请失业金、续请失业金、JOLTS、ADP、平均时薪。
+- ISM 制造业/服务业、新订单、PMI、GDP。
+- 消费者健康状况：刷卡消费、零售销售、旅行需求、可选消费压力。
+- 下周事件日历：零售销售、FOMC 利率决议和发布会、初请失业金、地区联储调查，以及其他可能改变市场路径的已知催化。
 
-### Rates, Liquidity, and Credit
+### 利率、流动性和信用
 
-- 10Y and 30Y Treasury yields.
-- TLT tactical entries around attractive 10Y yield levels; exit when yields normalize or better equity opportunities appear.
-- MOVE index, Treasury auctions, yield curve stress.
-- HY/IG spreads, CDS, private credit stress, bank/credit-card risk, mortgage/MBS pressure.
-- Fed path, FOMC tone, dot plot, rate-cut/hike probabilities, ECB/BoE signals.
+- 10 年和 30 年美债收益率。
+- 当 10 年美债收益率相对权益机会有吸引力时，TLT 可作为战术性工具；收益率正常化或出现更好权益机会时退出。
+- MOVE 指数、国债拍卖、收益率曲线压力。
+- HY/IG 利差、CDS、私人信贷压力、银行/信用卡风险、按揭/MBS 压力。
+- 联储路径、FOMC 语气、点阵图、加息/降息概率、ECB/BoE 信号。
+- 比较市场隐含利率路径和基准情景。CME 定价与基准判断之间的偏差，本身就是风险收益输入。
 
-### Sentiment, Positioning, and Flows
+### 情绪、仓位和资金流
 
-- CNN Fear & Greed.
-- VIX, VVIX/VIX, VIXY term structure, skew, put/call demand.
-- AAII bull-bear spread, NAAIM exposure, BofA Bull & Bear, fund manager cash levels.
-- Hedge-fund gross/net exposure, Goldman prime brokerage exposure, CTA positioning.
-- ETF/fund flows, LSEG Lipper flows, EPFR global flows, retail flow data.
-- Gamma/short-covering conditions and "5-sigma" net selling or buying events.
+- CNN Fear & Greed。
+- VIX、VVIX/VIX、VIXY 期限结构、skew、put/call 需求。
+- AAII 多空差、NAAIM 敞口、BofA Bull & Bear、基金经理现金水平。
+- 对冲基金 gross/net exposure、高盛 prime brokerage 敞口、CTA 仓位。
+- ETF/基金资金流、LSEG Lipper 资金流、EPFR 全球资金流、散户资金流数据。
+- gamma/空头回补条件，以及“5-sigma”级别的净卖出或净买入事件。
 
-### AI and Technology Fundamentals
+### AI 和科技基本面
 
-- Hyperscaler capex revisions: Microsoft, Meta, Alphabet, Amazon, Oracle, xAI.
-- Data-center orders, backlog, power availability, HVAC, optical, networking, memory, PCB, CPU/GPU mix.
-- AI software ARR, enterprise adoption, cloud revenue, security/data platform demand.
-- Anthropic ARR, OpenAI model releases, token volume, token price/cost, inference margin, customer ROI.
-- Semiconductor supply chain: NVDA, AVGO, TSM, ASML, memory, networking, optical.
+- 超大云厂商资本开支修订和 AI 基础设施预算信号。
+- 数据中心订单、积压订单、供电能力、HVAC、光通信、网络、内存、PCB、CPU/GPU mix。
+- AI 软件 ARR、企业采用、云收入、安全/数据平台需求。
+- AI 模型/平台信号：使用量、模型迭代节奏、融资或股权供给压力、token 量、token 价格/成本、推理利润率和客户 ROI。
+- 半导体和数据中心供应链：加速器、晶圆代工、封装、内存、网络、光通信、电力、冷却和供应冗余。
 
-### Event and Tail Risk
+### 事件和尾部风险
 
-- Geopolitics: Middle East conflict, Strait of Hormuz, oil/gas infrastructure, shipping.
-- Tariffs, USMCA/IEEPA alternatives, policy reversals.
-- Mega IPO/equity supply and secondary offerings.
-- Antitrust, regulatory, and litigation risk in large tech.
-- Oil and commodity supply shocks.
+- 地缘政治：中东冲突、霍尔木兹海峡、油气基础设施、航运。
+- 关税、USMCA/IEEPA 替代路径、政策反转。
+- 超大型 IPO/股权供给和增发。
+- 大型科技公司的反垄断、监管和诉讼风险。
+- 原油和大宗商品供应冲击。
 
-## Regime Rules
+## 市场状态规则
 
-### Structural Bull Pullback
+### 结构性牛市回调
 
-Conditions:
+条件：
 
-- Medium-term earnings and AI/capex thesis intact.
-- No systemic credit/liquidity deterioration.
-- Index drawdown around 10% or more.
-- Valuation reset, ideally near low historical percentile.
-- Sentiment washed out: high VIX, low Fear & Greed, bearish AAII, CTA/HF positioning cleaned out.
-- Technical damage exists but is not confirmed by fundamental deterioration.
+- 中期盈利和 AI/资本开支主线仍然完整。
+- 没有系统性信用或流动性恶化。
+- 指数回撤约 10% 或更多。
+- 估值已经重置，最好回到历史低分位附近。
+- 情绪已经出清：高 VIX、低 Fear & Greed、AAII 偏空、CTA/对冲基金仓位被清理。
+- 技术面受损，但尚未被基本面恶化确认。
 
-Action:
+行动：
 
-- Add in tranches.
-- Prefer index exposure first, then high-conviction satellites.
-- Add beta only after the plan's lower levels are hit or the reversal confirms.
+- 分批加仓。
+- 优先加指数仓位，再加高置信度卫星标的。
+- 只有当计划中的更低位置被触发，或反转得到确认后，才增加 beta。
 
-### Crowded/Overheated Advance
+### 拥挤/过热上涨
 
-Conditions:
+条件：
 
-- RSI(6) extremely high, such as above 90.
-- Large short-term rebound after washout.
-- S&P forward P/E near 22 or higher.
-- AI/technology exposure at multi-year highs.
-- Narrow breadth: a small number of stocks drive most index gains.
-- 10Y/30Y yields rise while equity multiples expand.
+- RSI(6) 极高，例如高于 90。
+- 出现从出清低点后的短期大幅反弹。
+- 标普前瞻 P/E 接近 22 倍或更高。
+- AI/科技敞口处于多年高位。
+- 市场宽度狭窄：少数股票驱动大部分指数涨幅。
+- 10 年/30 年美债收益率上行，同时权益估值倍数扩张。
 
-Action:
+行动：
 
-- Reduce calls, QLD/levered ETF, and high-beta satellites first.
-- Trim individual targets that reached valuation objectives.
-- Keep core exposure if medium-term thesis remains intact.
-- Prepare hedges if event risk or volatility is underpriced.
+- 先降低期权、QLD/杠杆 ETF 和高 beta 卫星仓位。
+- 减持已经达到估值目标的个股。
+- 如果中期主线仍完整，保留核心仓位。
+- 如果事件风险或波动率被低估，准备对冲。
 
-### Local Tail-Risk Shock
+### 高波动震荡市
 
-Conditions:
+条件：
 
-- Geopolitical or policy event dominates headlines.
-- Market has a plausible off-ramp or negotiation path.
-- Credit/liquidity channels are not breaking.
-- Historical analogs show shock is usually short-lived.
+- 指数可以剧烈波动，但持续大突破和持续大跌破的门槛都较高。
+- 市场宽度和情绪混合或中性，不是完全出清，也不是极度亢奋。
+- 宏观、利率或地缘政治事件路径仍未解决，但还不是系统性风险。
+- 个股比指数更动荡，市场分化明显。
+- 估值和盈利锚仍能区分“可买的回调”和“只是看起来更便宜的标的”。
 
-Action:
+行动：
 
-- Do not trade the headline alone.
-- Watch oil, rates, VIX, and market breadth for transmission.
-- Buy only if drawdown and valuation triggers align.
-- Use short-term hedges while the event path remains binary.
+- 不在没有估值和盈利检查的情况下追涨大盘或恐慌卖出。
+- 使用预选观察清单；当大幅下跌进入有吸引力的估值区域时，小幅分批加仓。
+- 当反弹达到估值或价格目标时减仓或收割。
+- 优先选择处于早周期、接近潜在拐点或可能成为最终赢家的行业。
+- 对冲保持战术性，并绑定在未解决的二元事件风险上。
 
-### Systemic Risk
+### 局部尾部冲击
 
-Conditions:
+条件：
 
-- Credit stress broadens from local/private pockets into banks, HY/IG, funding, or liquidity.
-- Treasury auctions weaken and MOVE rises sharply.
-- Earnings expectations fall while rates or inflation rise.
-- Consumer, employment, and liquidity data deteriorate together.
+- 地缘政治或政策事件主导新闻。
+- 市场存在可信的缓和路径、谈判路径或解决路径。
+- 信用和流动性渠道没有断裂。
+- 历史类比显示这类冲击通常持续时间较短。
 
-Action:
+行动：
 
-- De-risk materially.
-- Avoid assuming every 10% drawdown is buyable.
-- Hold more cash/T-bills/TLT-style defensive exposure only if rate risk is acceptable.
+- 不单独交易新闻标题。
+- 观察原油、利率、VIX 和市场宽度，判断冲击是否传导。
+- 只有当回撤和估值触发条件同时满足时才买入。
+- 在事件路径仍然二元化时使用短期对冲。
 
-## Position Band Guide
+### 系统性风险
 
-These are style bands, not prescriptions.
+条件：
 
-- 50% or lower: stretched valuation, high rates, crowded positioning, or systemic-risk probability rising.
-- 70%: constructive medium-term thesis but short-term risk/crowding is elevated.
-- 80%: constructive base case, valuation acceptable, no systemic risk.
-- 90%: strong fundamentals plus recent washout or favorable seasonality.
-- 95%: rare setup: valuation reset, sentiment extreme, earnings intact, and no systemic risk.
+- 信用压力从局部/私人信贷扩散到银行、HY/IG、融资或流动性。
+- 国债拍卖走弱，MOVE 明显上行。
+- 盈利预期下修，同时利率或通胀上行。
+- 消费、就业和流动性数据共同恶化。
 
-## Add and Reduce Rules
+行动：
 
-Use dynamic levels based on current market prices. The 2026 reports used a QQQ drawdown ladder with example levels around 6%, 8%, 10%, 12.5%, 15%, 17.5%, and 20%. The specific 2026 numbers should not be reused blindly.
+- 实质性降低风险。
+- 不假设每一次 10% 回撤都可以买。
+- 只有在利率风险可接受时，才持有更多现金、短债或 TLT 类防御性敞口。
 
-Add exposure when:
+## 仓位区间指南
 
-- QQQ/Nasdaq 100 hits preplanned drawdown levels.
-- Valuation percentiles reset.
-- VIX/Fear & Greed/AAII show fear.
-- EPS revisions and AI/capex fundamentals stay positive.
-- Rates stabilize or fall.
+这些是风格区间，不是交易指令。
 
-Reduce exposure when:
+- 50% 或更低：估值拉伸、利率高企、仓位拥挤，或系统性风险概率上升。
+- 70%：中期主线建设性，但短期风险或拥挤度偏高。
+- 80%：基本情景建设性，估值可接受，无系统性风险。
+- 90%：基本面强劲，并且近期经历出清或季节性有利。
+- 95%：罕见组合：估值重置、情绪极端、盈利完整且无系统性风险。
 
-- S&P forward P/E approaches 22; reduce more aggressively near 23.
-- 10Y yield breaks into a restrictive zone, such as 4.5% to 4.6% in the 2026 reports.
-- RSI(6) is severely overbought after a vertical rebound.
-- Market concentration and AI leverage are at extremes.
-- Mega IPO/equity supply can pressure large tech.
+## 加仓和减仓规则
 
-## Single-Name Rules
+根据当前市场价格使用动态点位。2026 年周报曾使用 QQQ 回撤阶梯，示例区间约为 6%、8%、10%、12.5%、15%、17.5% 和 20%。这些具体数值不应被机械复用。
 
-- Keep individual names as satellites unless evidence is exceptional.
-- In uncertain markets, keep total single-name exposure near 10%.
-- Require financial confirmation: revenue acceleration, ARR, capex/order support, margin path, and guidance.
-- Take profit or require higher evidence when 2027 forward P/E exceeds 30x.
-- Prefer industries where AI demand turns into revenue and margin: cloud, optical, data centers, security, memory/networking/PCB, power/HVAC, selected health care.
+加仓条件：
 
-## Output Template
+- QQQ/纳指 100 触及预设回撤位置。
+- 估值分位重置。
+- VIX/Fear & Greed/AAII 显示恐慌。
+- EPS 修订和 AI/资本开支基本面保持正向。
+- 利率稳定或下行。
+
+减仓条件：
+
+- 标普前瞻 P/E 接近 22 倍；接近 23 倍时更积极降风险。
+- 10 年美债收益率进入限制性区间，例如 2026 年周报中使用过的 4.5% 至 4.6%。
+- 垂直反弹后 RSI(6) 严重超买。
+- 市场集中度和 AI 杠杆处于极端水平。
+- 超大型 IPO/股权供给可能压制大型科技股。
+
+## 个股规则
+
+- 除非证据极强，否则个股只作为卫星仓位。
+- 在不确定市场中，个股总敞口接近 10% 更符合该风格。
+- 需要财务确认：收入加速、ARR、资本开支/订单支撑、利润率路径和指引。
+- 当 2027 年前瞻 P/E 超过 30 倍时，要么获利了结，要么要求更高证据。
+- 优先选择 AI 需求能够转化为收入和利润率的行业：云、光通信、数据中心、安全、内存/网络/PCB、电力/HVAC、部分医疗。
+
+## 输出模板
 
 ```markdown
-**Regime**
-Structural bull pullback / overheated advance / local shock / systemic risk.
+**市场状态**
+结构性牛市回调 / 拥挤或过热上涨 / 高波动震荡市 / 局部冲击 / 系统性风险。
 
-**Conclusion**
-One-paragraph stance with confidence and time horizon.
+**结论**
+用一段话说明立场、置信度和时间周期。
 
-**Evidence**
-| Dimension | Bullish | Bearish | Read-through |
+**证据**
+| 维度 | 多头证据 | 空头证据 | 解读 |
 |---|---|---|---|
-| Trend/technicals | ... | ... | ... |
-| Valuation/earnings | ... | ... | ... |
-| Macro | ... | ... | ... |
-| Rates/liquidity | ... | ... | ... |
-| Sentiment/positioning | ... | ... | ... |
-| Flows/structure | ... | ... | ... |
-| AI/theme | ... | ... | ... |
-| Event risk | ... | ... | ... |
+| 趋势/技术面 | ... | ... | ... |
+| 估值/盈利 | ... | ... | ... |
+| 宏观 | ... | ... | ... |
+| 利率/流动性 | ... | ... | ... |
+| 情绪/仓位 | ... | ... | ... |
+| 资金流/结构 | ... | ... | ... |
+| AI/主题 | ... | ... | ... |
+| 事件风险 | ... | ... | ... |
 
-**Action Plan**
-- Position band:
-- Add triggers:
-- Reduce triggers:
-- Hedge triggers:
-- Invalidation:
+**行动计划**
+- 仓位区间：
+- 加仓触发：
+- 减仓触发：
+- 对冲触发：
+- 失效条件：
 
-**Data To Refresh**
-- List stale or missing data before acting.
+**需要刷新数据**
+- 列出行动前需要更新或确认的数据。
 ```
