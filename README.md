@@ -26,6 +26,7 @@ The installer is a Node TUI powered by Ink. It can:
 - show skill descriptions from `SKILL.md` before installation
 - install to global agent locations, project-local `.agents/skills`, or a custom directory
 - run in dry-run mode before writing symlinks
+- preselect already installed skills and show which agent targets have them
 - inspect installed skills with `View installed skills`
 
 Existing symlinks are updated. Existing real files or directories are skipped.

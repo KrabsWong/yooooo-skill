@@ -64,7 +64,7 @@ Options:
   --all                  Install every discovered skill.
   --first-party          Install root-level first-party skills.
   --external             Install skills discovered under external/.
-  --skill NAME           Install one skill by directory name. Repeatable.
+  --skill NAME           Install one skill by frontmatter name. Repeatable.
   --global AGENT         shared, codex, claude, opencode, codebuddy, pi, or all.
   --project PATH         Install to PATH/.agents/skills.
   --target PATH          Install to an explicit skills directory.
@@ -292,7 +292,7 @@ function skillSource(skillPath, origin) {
 function buildSkill(skillPath, origin) {
   const metadata = readSkillMetadata(skillPath);
   return {
-    name: path.basename(skillPath),
+    name: metadata.name || path.basename(skillPath),
     path: skillPath,
     origin,
     source: skillSource(skillPath, origin),
@@ -460,6 +460,65 @@ function inspectInstalledTarget(target) {
 
 function inspectInstalledTargets(targets) {
   return targets.map((target) => inspectInstalledTarget(target));
+}
+
+function targetDisplayName(target) {
+  const resolved = path.resolve(target);
+  return knownGlobalTargets.find((item) => path.resolve(item.dir) === resolved)?.name || compactPath(target);
+}
+
+function buildInstalledSkillSummaries(skills, reports) {
+  const indexesByPath = new Map(skills.map((skill, index) => [path.resolve(skill.path), index]));
+  const indexesByName = new Map();
+  skills.forEach((skill, index) => {
+    const indexes = indexesByName.get(skill.name) || [];
+    indexes.push(index);
+    indexesByName.set(skill.name, indexes);
+  });
+
+  const summaries = new Map();
+  for (const report of reports) {
+    for (const entry of report.entries) {
+      let index = indexesByPath.get(path.resolve(entry.source));
+      const nameMatches = indexesByName.get(entry.name) || [];
+      if (index === undefined && nameMatches.length === 1) {
+        index = nameMatches[0];
+      }
+      if (index === undefined) {
+        continue;
+      }
+
+      const entries = summaries.get(index) || [];
+      entries.push({
+        target: report.target,
+        targetName: targetDisplayName(report.target),
+        kind: entry.kind,
+        source: entry.source,
+      });
+      summaries.set(index, entries);
+    }
+  }
+
+  return summaries;
+}
+
+function formatInstalledSkillSummary(entries) {
+  if (!entries?.length) {
+    return '';
+  }
+
+  const targetNames = [...new Set(entries.map((entry) => entry.targetName))];
+  return `installed: ${targetNames.join(', ')}`;
+}
+
+function formatInstalledSkillDetails(entries) {
+  if (!entries?.length) {
+    return '';
+  }
+
+  return entries
+    .map((entry) => `- ${entry.targetName}: ${entry.kind} -> ${compactPath(entry.source)}`)
+    .join('\n');
 }
 
 function formatInstalledReport(reports) {
@@ -858,9 +917,9 @@ function SingleSelect({items, defaultIndex = 0, onSubmit}) {
   );
 }
 
-function MultiSelect({items, onSubmit, onBack}) {
+function MultiSelect({items, defaultValues = [], onSubmit, onBack}) {
   const [cursor, setCursor] = useState(0);
-  const [selected, setSelected] = useState(() => new Set());
+  const [selected, setSelected] = useState(() => new Set(defaultValues));
   const [error, setError] = useState('');
   const currentItem = items[cursor];
   const itemCount = visibleListCount({detail: currentItem?.detail, hasError: Boolean(error)});
@@ -1081,16 +1140,35 @@ function InstallerApp({skills}) {
   const [result, setResult] = useState(null);
   const [installedReports, setInstalledReports] = useState([]);
   const [error, setError] = useState('');
+  const installedSkillSummaries = useMemo(
+    () => buildInstalledSkillSummaries(skills, inspectInstalledTargets(defaultInstalledTargets())),
+    [skills],
+  );
+  const defaultInstalledSkillValues = useMemo(
+    () => [...installedSkillSummaries.entries()]
+      .filter(([, entries]) => entries.length > 0)
+      .map(([index]) => String(index)),
+    [installedSkillSummaries],
+  );
 
   const skillItems = useMemo(
     () =>
-      skills.map((skill, index) => ({
-        value: String(index),
-        label: `${skill.name.padEnd(34, ' ')} ${skill.origin.padEnd(12, ' ')} ${skill.source}`,
-        detailTitle: skill.name,
-        detail: `Path: ${relPath(skill.path)}\nDescription: ${skill.description || 'No description in SKILL.md.'}`,
-      })),
-    [skills],
+      skills.map((skill, index) => {
+        const installedEntries = installedSkillSummaries.get(index) || [];
+        const installedSummary = formatInstalledSkillSummary(installedEntries);
+        const installedDetails = formatInstalledSkillDetails(installedEntries);
+        return {
+          value: String(index),
+          label: `${skill.name.padEnd(34, ' ')} ${skill.origin.padEnd(12, ' ')} ${skill.source}${installedSummary ? `  [${shortText(installedSummary, 60)}]` : ''}`,
+          detailTitle: skill.name,
+          detail: [
+            `Path: ${relPath(skill.path)}`,
+            `Description: ${skill.description || 'No description in SKILL.md.'}`,
+            installedDetails ? `Installed:\n${installedDetails}` : '',
+          ].filter(Boolean).join('\n'),
+        };
+      }),
+    [installedSkillSummaries, skills],
   );
 
   const targetItems = useMemo(
@@ -1178,15 +1256,23 @@ function InstallerApp({skills}) {
   if (step === 'skills') {
     return h(
       Page,
-      {skills, title: 'Choose specific skills', footer: 'Space toggles, a all, n none, PageUp/PageDown jumps, Enter continues.'},
-      h(MultiSelect, {
-        key: 'skill-select',
-        items: skillItems,
-        onSubmit: (values) => {
-          setSelectedIndexes(values.map((value) => Number(value)).sort((left, right) => left - right));
-          setStep('targets');
-        },
-      }),
+      {skills, title: 'Choose specific skills', footer: 'Installed skills start checked. Space toggles, a all, n none, PageUp/PageDown jumps, Enter continues.'},
+      h(
+        Box,
+        {flexDirection: 'column'},
+        defaultInstalledSkillValues.length > 0
+          ? h(Text, {dimColor: true}, 'Installed means present in at least one known global agent target; details show partial agent installs.')
+          : null,
+        h(MultiSelect, {
+          key: 'skill-select',
+          items: skillItems,
+          defaultValues: defaultInstalledSkillValues,
+          onSubmit: (values) => {
+            setSelectedIndexes(values.map((value) => Number(value)).sort((left, right) => left - right));
+            setStep('targets');
+          },
+        }),
+      ),
     );
   }
 
