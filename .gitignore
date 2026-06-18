@@ -2,3 +2,9 @@
 *.bun-build
 /bin/
 node_modules/
+.build/
+.swiftpm/
+dist/
+app/.build/
+app/.swiftpm/
+app/dist/
