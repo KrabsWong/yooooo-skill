@@ -8,3 +8,5 @@ dist/
 app/.build/
 app/.swiftpm/
 app/dist/
+__pycache__/
+*.py[cod]

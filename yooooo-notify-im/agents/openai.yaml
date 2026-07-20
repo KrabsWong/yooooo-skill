@@ -1,0 +1,4 @@
+interface:
+  display_name: "Yooooo Notify IM"
+  short_description: "Push requested summaries to configured IM channels"
+  default_prompt: "Use $yooooo-notify-im to send this result to my configured IM channel."
