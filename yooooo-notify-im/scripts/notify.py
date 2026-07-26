@@ -4,6 +4,7 @@
 from __future__ import annotations
 
 import argparse
+import base64
 import hashlib
 import hmac
 import json
@@ -19,6 +20,8 @@ from urllib import error, request
 
 
 DEFAULT_CONFIG_PATH = Path.home() / ".config" / "yooooo-notifier" / "client.json"
+MAX_PHOTO_BYTES = 4_000_000
+SUPPORTED_PHOTO_TYPES = {"image/jpeg", "image/png", "image/webp"}
 
 
 class ClientError(Exception):
@@ -70,6 +73,44 @@ def signature(key: str, client: str, timestamp: int, nonce: str, body: bytes) ->
     body_digest = hashlib.sha256(body).hexdigest()
     canonical = f"v1\n{client}\n{timestamp}\n{nonce}\n{body_digest}".encode("utf-8")
     return hmac.new(key.encode("utf-8"), canonical, hashlib.sha256).hexdigest()
+
+
+def detect_photo_type(data: bytes) -> str | None:
+    if data.startswith(b"\xff\xd8\xff"):
+        return "image/jpeg"
+    if data.startswith(b"\x89PNG\r\n\x1a\n"):
+        return "image/png"
+    if len(data) >= 12 and data.startswith(b"RIFF") and data[8:12] == b"WEBP":
+        return "image/webp"
+    return None
+
+
+def encode_photo(path: Path) -> dict[str, str]:
+    try:
+        if not path.is_file():
+            raise ClientError(f"image path is not a regular file: {path}")
+        size = path.stat().st_size
+        if size <= 0:
+            raise ClientError(f"image file is empty: {path}")
+        if size > MAX_PHOTO_BYTES:
+            raise ClientError(
+                f"image file exceeds the {MAX_PHOTO_BYTES}-byte client limit: {path}"
+            )
+        data = path.read_bytes()
+        content_type = detect_photo_type(data)
+        if content_type not in SUPPORTED_PHOTO_TYPES:
+            supported = ", ".join(sorted(SUPPORTED_PHOTO_TYPES))
+            raise ClientError(f"unsupported image type; expected one of {supported}: {path}")
+        encoded = base64.b64encode(data).decode("ascii")
+    except OSError as exc:
+        raise ClientError(f"cannot read image file: {path}") from exc
+
+    return {
+        "kind": "photo",
+        "filename": path.name,
+        "content_type": content_type,
+        "data_base64": encoded,
+    }
 
 
 def check_health(config: ClientConfig, timeout: float) -> dict[str, Any]:
@@ -173,6 +214,12 @@ def _arguments() -> argparse.Namespace:
     )
     parser.add_argument("--check", action="store_true", help="check endpoint and server configuration")
     parser.add_argument("--title", default="Codex 通知", help="notification title")
+    parser.add_argument(
+        "--image",
+        type=Path,
+        default=None,
+        help="JPEG, PNG, or WebP image to send as a Telegram photo",
+    )
     parser.add_argument("--target", default=None, help="configured target alias")
     parser.add_argument("--source", default="codex", help="notification source label")
     parser.add_argument("--request-id", default=None, help="stable request id; defaults to a UUID")
@@ -188,10 +235,10 @@ def main() -> int:
             result = check_health(config, args.timeout)
         else:
             body = sys.stdin.read()
-            if not body.strip():
+            if not body.strip() and args.image is None:
                 raise ClientError("notification body must be provided on stdin")
             payload = {
-                "version": 1,
+                "version": 2 if args.image is not None else 1,
                 "request_id": args.request_id or str(uuid.uuid4()),
                 "target": args.target or config.default_target,
                 "title": args.title,
@@ -199,6 +246,8 @@ def main() -> int:
                 "source": args.source,
                 "created_at": datetime.now(timezone.utc).isoformat(),
             }
+            if args.image is not None:
+                payload["media"] = encode_photo(args.image)
             result = send_notification(config, payload, timeout=args.timeout)
     except ClientError as exc:
         print(json.dumps({"ok": False, "error": str(exc)}, ensure_ascii=False), file=sys.stderr)
