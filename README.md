@@ -7,7 +7,7 @@ Portable Agent Skills managed from one repository and installed with symlinks.
 | Skill | Purpose | Path |
 | --- | --- | --- |
 | `yooooo-git-post-merge-cleanup` | Sync trunk after a merge and safely prune merged Git branches. | `yooooo-git-post-merge-cleanup` |
-| `yooooo-notify-im` | Send user-requested results through a signed SCF notification service. | `yooooo-notify-im` |
+| `yooooo-notify-im` | Send user-requested text and images through a signed SCF notification service. | `yooooo-notify-im` |
 
 ## Quick Start
 
