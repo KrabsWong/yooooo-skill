@@ -1,6 +1,6 @@
 # yooooo-skills
 
-Portable Agent Skills managed from one repository and installed with symlinks.
+Portable Agent Skills managed from one repository with safe symlink workflows.
 
 ## Skills
 
@@ -11,30 +11,37 @@ Portable Agent Skills managed from one repository and installed with symlinks.
 
 ## Quick Start
 
-Clone with submodules, install dependencies, then open the TUI installer:
+Clone with submodules, install dependencies, then open the TUI manager:
 
 ```bash
 git clone --recurse-submodules git@github.com:KrabsWong/yooooo-skill.git
 cd yooooo-skill
 npm install
-npm run install-skills
+npm run manage-skills
 ```
 
-The installer is a Node TUI powered by Ink. It can:
+The manager is a Node TUI powered by Ink. It can:
 
 - install all, first-party, external, or selected skills
+- uninstall selected managed skill links from chosen targets
+- show globally installed skills before asking which related agent targets to change
 - show skill descriptions from `SKILL.md` before installation
 - install to global agent locations, project-local `.agents/skills`, or a custom directory
-- run in dry-run mode before writing symlinks
+- run in dry-run mode before changing symlinks
 - preselect already installed skills and show which agent targets have them
 - inspect installed skills with `View installed skills`
 
-Existing symlinks are updated. Existing real files or directories are skipped.
+Existing symlinks are updated during installation. Uninstall removes only links
+that point to discovered skills in this repository. Existing real files,
+directories, and links to other sources are skipped.
 
 ## Commands
 
 ```bash
-# Open the interactive installer.
+# Open the interactive manager.
+npm run manage-skills
+
+# The original install command remains as a compatibility alias.
 npm run install-skills
 
 # List discovered skills.
@@ -54,6 +61,12 @@ npm run install-skills -- --first-party --global all --yes
 
 # Install one external skill into a project-local skill directory.
 npm run install-skills -- --skill write --project /path/to/project --yes
+
+# Uninstall one skill from Codex after reviewing the selected link.
+npm run uninstall-skills -- --skill write --global codex
+
+# Preview uninstalling all managed links from one project.
+npm run uninstall-skills -- --all --project /path/to/project --dry-run --yes
 
 # Preview without writing anything.
 npm run install-skills -- --all --global codex --dry-run
@@ -78,22 +91,23 @@ Build a local standalone executable with Bun:
 npm run build:bin
 ```
 
-This writes `bin/yooooo-skills-install`. The generated file embeds the Bun runtime and the TUI code. It is not a shell script, and it does not require Node or Bun at runtime.
+This writes `bin/yooooo-skills`. The generated file embeds the Bun runtime and the TUI code. It is not a shell script, and it does not require Node or Bun at runtime.
 
 `bin/` is ignored by Git because the executable is large, platform-specific, and reproducible from source. If you want to distribute it, attach it to a GitHub Release instead of committing it to the repository.
 
 Run it directly:
 
 ```bash
-./bin/yooooo-skills-install
-./bin/yooooo-skills-install --list
-./bin/yooooo-skills-install --all --global codex --dry-run
+./bin/yooooo-skills
+./bin/yooooo-skills --list
+./bin/yooooo-skills --all --global codex --dry-run
+./bin/yooooo-skills --uninstall --skill write --global codex --dry-run
 ```
 
 The binary still needs this repository as the skill source because installation creates symlinks to directories such as `yooooo-*` and `external/*/skills/*`. Run it from this repository, keep it under `bin/`, or point it at the repository explicitly:
 
 ```bash
-YOOOOO_SKILLS_REPO=/path/to/yooooo-skills ./bin/yooooo-skills-install
+YOOOOO_SKILLS_REPO=/path/to/yooooo-skills ./bin/yooooo-skills
 ```
 
 ### Release Binary
@@ -105,7 +119,7 @@ git tag bin-v0.1.0
 git push origin bin-v0.1.0
 ```
 
-The workflow builds `yooooo-skills-install-darwin-arm64.tar.gz` and attaches it to the tag's GitHub Release. Normal skill-only changes on `main` do not run `build:bin`.
+The workflow builds `yooooo-skills-darwin-arm64.tar.gz` and attaches it to the tag's GitHub Release. Normal skill-only changes on `main` do not run `build:bin`.
 
 ## Repository Layout
 

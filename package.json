@@ -3,16 +3,20 @@
   "version": "0.1.0",
   "private": true,
   "type": "module",
-  "description": "Portable Agent Skills managed with symlink installers.",
+  "description": "Portable Agent Skills managed with safe symlink workflows.",
   "license": "AGPL-3.0-only",
   "bin": {
-    "yooooo-skills-install": "./scripts/install-skills.mjs"
+    "yooooo-skills": "./scripts/manage-skills.mjs",
+    "yooooo-skills-install": "./scripts/manage-skills.mjs"
   },
   "scripts": {
-    "build:bin": "bun build --compile --target=bun --outfile=bin/yooooo-skills-install scripts/install-skills.mjs",
-    "install-skills": "node scripts/install-skills.mjs",
-    "list-skills": "node scripts/install-skills.mjs --list",
-    "installed-skills": "node scripts/install-skills.mjs --installed"
+    "build:bin": "bun build --compile --target=bun --outfile=bin/yooooo-skills scripts/manage-skills.mjs",
+    "manage-skills": "node scripts/manage-skills.mjs",
+    "install-skills": "node scripts/manage-skills.mjs",
+    "uninstall-skills": "node scripts/manage-skills.mjs --uninstall",
+    "list-skills": "node scripts/manage-skills.mjs --list",
+    "installed-skills": "node scripts/manage-skills.mjs --installed",
+    "test": "node --test scripts/manage-skills.test.mjs"
   },
   "engines": {
     "node": ">=20"

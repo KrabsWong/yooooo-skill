@@ -24,8 +24,8 @@ jobs:
       matrix:
         include:
           - target: bun-darwin-arm64
-            asset_name: yooooo-skills-install-darwin-arm64
-            archive_name: yooooo-skills-install-darwin-arm64.tar.gz
+            asset_name: yooooo-skills-darwin-arm64
+            archive_name: yooooo-skills-darwin-arm64.tar.gz
 
     steps:
       - name: Checkout
@@ -53,13 +53,13 @@ jobs:
       - name: Install dependencies
         run: npm ci
 
-      - name: Verify installer
+      - name: Verify manager
         run: npm run list-skills
 
       - name: Build binary
         run: |
           mkdir -p bin
-          bun build --compile --target=${{ matrix.target }} --outfile=bin/${{ matrix.asset_name }} scripts/install-skills.mjs
+          bun build --compile --target=${{ matrix.target }} --outfile=bin/${{ matrix.asset_name }} scripts/manage-skills.mjs
           chmod +x bin/${{ matrix.asset_name }}
 
       - name: Package binary
