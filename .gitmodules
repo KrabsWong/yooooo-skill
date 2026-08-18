@@ -13,3 +13,6 @@
 [submodule "external/JimLiu/baoyu-design"]
 	path = external/JimLiu/baoyu-design
 	url = git@github.com:JimLiu/baoyu-design.git
+[submodule "external/yizhiyanhua-ai/fireworks-tech-graph"]
+	path = external/yizhiyanhua-ai/fireworks-tech-graph
+	url = git@github.com:yizhiyanhua-ai/fireworks-tech-graph.git
