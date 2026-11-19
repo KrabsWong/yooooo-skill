@@ -7,7 +7,7 @@ The client reads `~/.config/yooooo-notifier/client.json` by default:
   "endpoint": "https://example.ap-hongkong.tencentscf.com",
   "client_id": "codex",
   "hmac_key": "at-least-32-characters-and-identical-to-scf",
-  "default_target": "default"
+  "default_destination": "telegram_default"
 }
 ```
 
@@ -18,18 +18,25 @@ Environment variables override the endpoint and credentials:
 - `YOOOOO_NOTIFY_HMAC_KEY`
 - `YOOOOO_NOTIFY_CONFIG`
 
-`notify.py` signs the exact UTF-8 JSON request body with HMAC-SHA256. Text requests use protocol version 1. Photo requests use version 2 and add:
+`notify.py` signs the exact UTF-8 JSON request body with HMAC-SHA256. The body is one
+`client_payload` task:
 
 ```json
 {
-  "media": {
-    "kind": "photo",
-    "filename": "result.png",
-    "content_type": "image/png",
-    "data_base64": "<base64 data>"
+  "schema_version": 1,
+  "id": "<request id>",
+  "provider": "client_payload",
+  "destination": "telegram_default",
+  "params": {
+    "title": "Title",
+    "body": "Body",
+    "source": "codex"
   }
 }
 ```
+
+Photo requests add `params.media` with `kind`, `filename`, `content_type`, and
+`data_base64`.
 
 The client accepts JPEG, PNG, and WebP photos up to 4,000,000 bytes. This conservative limit leaves room for Base64 and JSON overhead under SCF's 6 MB synchronous request-event limit. The relay must reject unsupported protocol versions instead of ignoring `media`, and must decode the content only after request authentication and size validation. It sends the first 1024 characters of `title` plus `body` as the Telegram photo caption and sends any remainder as ordinary text chunks.
 

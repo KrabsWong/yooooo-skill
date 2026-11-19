@@ -14,7 +14,7 @@ from unittest import mock
 
 
 SCRIPT_PATH = Path(__file__).parents[1] / "scf" / "index.py"
-SPEC = importlib.util.spec_from_file_location("notify_scf_server", SCRIPT_PATH)
+SPEC = importlib.util.spec_from_file_location("notify_service", SCRIPT_PATH)
 assert SPEC is not None and SPEC.loader is not None
 server = importlib.util.module_from_spec(SPEC)
 sys.modules[SPEC.name] = server
@@ -22,9 +22,20 @@ SPEC.loader.exec_module(server)
 
 TEST_KEY = "test-key-that-is-at-least-32-characters"
 TEST_ENV = {
-    "NOTIFY_HMAC_KEY": TEST_KEY,
-    "TELEGRAM_BOT_TOKEN": "test-bot-token",
-    "TELEGRAM_CHAT_ID": "@test_channel",
+    "YOOOOO_NOTIFY_HMAC_KEY": TEST_KEY,
+    "YOOOOO_TELEGRAM_BOT_TOKEN": "test-bot-token",
+    "YOOOOO_DESTINATIONS_CONFIG": json.dumps(
+        {
+            "version": 1,
+            "destinations": [
+                {
+                    "id": "default",
+                    "adapter": "telegram",
+                    "chat_id": "@test_channel",
+                }
+            ],
+        }
+    ),
 }
 
 
@@ -36,13 +47,13 @@ def signed_event(payload, *, nonce="0123456789abcdef0123456789abcdef"):
     body = json.dumps(payload, ensure_ascii=False, separators=(",", ":")).encode("utf-8")
     timestamp = int(time.time())
     digest = hashlib.sha256(body).hexdigest()
-    canonical = f"v1\ncodex\n{timestamp}\n{nonce}\n{digest}".encode("utf-8")
+    canonical = f"v1\nmessage-hub\n{timestamp}\n{nonce}\n{digest}".encode("utf-8")
     signature = hmac.new(TEST_KEY.encode("utf-8"), canonical, hashlib.sha256).hexdigest()
     return {
         "httpMethod": "POST",
         "path": "/",
         "headers": {
-            "X-Notify-Client": "codex",
+            "X-Notify-Client": "message-hub",
             "X-Notify-Timestamp": str(timestamp),
             "X-Notify-Nonce": nonce,
             "X-Notify-Signature": f"v1={signature}",
@@ -66,17 +77,29 @@ class ScfRelayTests(unittest.TestCase):
             {
                 "ok": True,
                 "service": "yooooo-notifier",
-                "version": "2.0.1",
+                "version": "3.0.0",
                 "configured": True,
                 "capabilities": ["text", "photo"],
+                "destinations": [{"id": "default", "adapter": "telegram"}],
             },
+        )
+
+    def test_health_reports_missing_configuration(self):
+        event = {"httpMethod": "GET", "path": "/health", "headers": {}, "body": ""}
+        with mock.patch.dict(os.environ, {}, clear=True):
+            response = server.main_handler(event, None)
+
+        self.assertEqual(response["statusCode"], 503)
+        self.assertEqual(
+            response_body(response)["error"],
+            "invalid_destination_configuration",
         )
 
     def test_delivers_signed_text_request(self):
         payload = {
             "version": 1,
             "request_id": "text-request",
-            "target": "default",
+            "destination": "default",
             "title": "Title",
             "body": "Body",
         }
@@ -97,7 +120,7 @@ class ScfRelayTests(unittest.TestCase):
         payload = {
             "version": 2,
             "request_id": "photo-request",
-            "target": "default",
+            "destination": "default",
             "title": "Photo",
             "body": "Caption",
             "media": {
@@ -124,7 +147,14 @@ class ScfRelayTests(unittest.TestCase):
         config = server.ServerConfig(
             hmac_key=TEST_KEY,
             bot_token="test-bot-token",
-            chat_id="@test_channel",
+            destinations={
+                "default": server.Destination(
+                    id="default",
+                    adapter="telegram",
+                    chat_id="@test_channel",
+                )
+            },
+            allowed_clients={"message-hub"},
         )
         captured = {}
 
@@ -155,7 +185,7 @@ class ScfRelayTests(unittest.TestCase):
         payload = {
             "version": 1,
             "request_id": "bad-signature",
-            "target": "default",
+            "destination": "default",
             "title": "Title",
             "body": "Body",
         }
@@ -175,7 +205,7 @@ class ScfRelayTests(unittest.TestCase):
         payload = {
             "version": 1,
             "request_id": "replay",
-            "target": "default",
+            "destination": "default",
             "title": "Title",
             "body": "Body",
         }
@@ -190,6 +220,83 @@ class ScfRelayTests(unittest.TestCase):
         self.assertEqual(first["statusCode"], 200)
         self.assertEqual(second["statusCode"], 409)
         self.assertEqual(response_body(second)["error"], "replayed_nonce")
+
+    def test_delivers_to_named_destination(self):
+        payload = {
+            "version": 1,
+            "request_id": "named-destination",
+            "destination": "ops",
+            "title": "Title",
+            "body": "Body",
+        }
+        event = signed_event(payload)
+        env = {
+            **TEST_ENV,
+            "YOOOOO_DESTINATIONS_CONFIG": json.dumps(
+                {
+                    "version": 1,
+                    "destinations": [
+                        {
+                            "id": "default",
+                            "adapter": "telegram",
+                            "chat_id": "@default",
+                        },
+                        {
+                            "id": "ops",
+                            "adapter": "telegram",
+                            "chat_id": "-100ops",
+                        },
+                    ],
+                }
+            ),
+        }
+        with (
+            mock.patch.dict(os.environ, env, clear=True),
+            mock.patch.object(server, "_send_message", return_value=51) as send_message,
+        ):
+            response = server.main_handler(event, None)
+
+        self.assertEqual(response["statusCode"], 200)
+        self.assertEqual(send_message.call_args.args[1], "-100ops")
+
+    def test_rejects_unknown_destination(self):
+        payload = {
+            "version": 1,
+            "request_id": "unknown-destination",
+            "destination": "missing",
+            "title": "Title",
+            "body": "Body",
+        }
+        event = signed_event(payload)
+        with mock.patch.dict(os.environ, TEST_ENV, clear=True):
+            response = server.main_handler(event, None)
+
+        self.assertEqual(response["statusCode"], 400)
+        self.assertEqual(response_body(response)["error"], "unknown_destination")
+
+    def test_rejects_client_outside_allowlist(self):
+        payload = {
+            "version": 1,
+            "request_id": "unknown-client",
+            "destination": "default",
+            "title": "Title",
+            "body": "Body",
+        }
+        event = signed_event(payload)
+        event["headers"]["X-Notify-Client"] = "codex"
+        body = event["body"].encode("utf-8")
+        timestamp = int(event["headers"]["X-Notify-Timestamp"])
+        nonce = event["headers"]["X-Notify-Nonce"]
+        digest = hashlib.sha256(body).hexdigest()
+        canonical = f"v1\ncodex\n{timestamp}\n{nonce}\n{digest}".encode("utf-8")
+        event["headers"]["X-Notify-Signature"] = "v1=" + hmac.new(
+            TEST_KEY.encode("utf-8"), canonical, hashlib.sha256
+        ).hexdigest()
+        with mock.patch.dict(os.environ, TEST_ENV, clear=True):
+            response = server.main_handler(event, None)
+
+        self.assertEqual(response["statusCode"], 403)
+        self.assertEqual(response_body(response)["error"], "unknown_client")
 
 
 if __name__ == "__main__":

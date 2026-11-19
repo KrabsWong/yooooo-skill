@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Submit a signed notification request to yoooo-notifier."""
+"""Submit a signed client_payload task to yooooo-message-hub."""
 
 from __future__ import annotations
 
@@ -33,7 +33,7 @@ class ClientConfig:
     endpoint: str
     client_id: str
     hmac_key: str
-    default_target: str = "default"
+    default_destination: str = "telegram_default"
 
 
 def load_config(path: Path) -> ClientConfig:
@@ -50,7 +50,10 @@ def load_config(path: Path) -> ClientConfig:
     endpoint = os.environ.get("YOOOOO_NOTIFY_URL") or file_values.get("endpoint")
     client_id = os.environ.get("YOOOOO_NOTIFY_CLIENT_ID") or file_values.get("client_id", "codex")
     hmac_key = os.environ.get("YOOOOO_NOTIFY_HMAC_KEY") or file_values.get("hmac_key")
-    default_target = file_values.get("default_target", "default")
+    default_destination = file_values.get(
+        "default_destination",
+        "telegram_default",
+    )
 
     if not isinstance(endpoint, str) or not endpoint.strip():
         raise ClientError("missing endpoint in config or YOOOOO_NOTIFY_URL")
@@ -58,14 +61,14 @@ def load_config(path: Path) -> ClientConfig:
         raise ClientError("missing client_id in config or YOOOOO_NOTIFY_CLIENT_ID")
     if not isinstance(hmac_key, str) or len(hmac_key) < 32:
         raise ClientError("hmac_key must contain at least 32 characters")
-    if default_target != "default":
-        raise ClientError("default_target must be 'default'")
+    if not isinstance(default_destination, str) or not default_destination.strip():
+        raise ClientError("default_destination is required")
 
     return ClientConfig(
         endpoint=endpoint.rstrip("/"),
         client_id=client_id.strip(),
         hmac_key=hmac_key,
-        default_target=default_target,
+        default_destination=default_destination.strip(),
     )
 
 
@@ -220,7 +223,11 @@ def _arguments() -> argparse.Namespace:
         default=None,
         help="JPEG, PNG, or WebP image to send as a Telegram photo",
     )
-    parser.add_argument("--target", default=None, help="configured target alias")
+    parser.add_argument(
+        "--destination",
+        default=None,
+        help="configured destination id",
+    )
     parser.add_argument("--source", default="codex", help="notification source label")
     parser.add_argument("--request-id", default=None, help="stable request id; defaults to a UUID")
     parser.add_argument("--timeout", type=float, default=50.0, help="HTTP timeout in seconds")
@@ -237,17 +244,22 @@ def main() -> int:
             body = sys.stdin.read()
             if not body.strip() and args.image is None:
                 raise ClientError("notification body must be provided on stdin")
-            payload = {
-                "version": 2 if args.image is not None else 1,
-                "request_id": args.request_id or str(uuid.uuid4()),
-                "target": args.target or config.default_target,
+            request_id = args.request_id or str(uuid.uuid4())
+            params = {
                 "title": args.title,
                 "body": body,
                 "source": args.source,
                 "created_at": datetime.now(timezone.utc).isoformat(),
             }
             if args.image is not None:
-                payload["media"] = encode_photo(args.image)
+                params["media"] = encode_photo(args.image)
+            payload = {
+                "schema_version": 1,
+                "id": request_id,
+                "provider": "client_payload",
+                "destination": args.destination or config.default_destination,
+                "params": params,
+            }
             result = send_notification(config, payload, timeout=args.timeout)
     except ClientError as exc:
         print(json.dumps({"ok": False, "error": str(exc)}, ensure_ascii=False), file=sys.stderr)

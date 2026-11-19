@@ -17,7 +17,7 @@ from typing import Any
 from urllib import error, request
 
 
-SERVICE_VERSION = "2.0.1"
+SERVICE_VERSION = "3.0.0"
 MAX_EVENT_BODY_BYTES = 5_900_000
 MAX_PHOTO_BYTES = 4_000_000
 MAX_ENCODED_PHOTO_CHARS = 5_400_000
@@ -49,21 +49,78 @@ class TelegramError(Exception):
 
 
 @dataclass(frozen=True)
+class Destination:
+    id: str
+    adapter: str
+    chat_id: str
+
+
+@dataclass(frozen=True)
 class ServerConfig:
     hmac_key: str
     bot_token: str
-    chat_id: str
+    destinations: dict[str, Destination]
+    allowed_clients: set[str]
 
     @property
     def configured(self) -> bool:
-        return bool(len(self.hmac_key) >= 32 and self.bot_token and self.chat_id)
+        return bool(
+            len(self.hmac_key) >= 32
+            and self.bot_token
+            and self.destinations
+            and self.allowed_clients
+        )
 
 
 def load_config() -> ServerConfig:
+    raw_config = os.environ.get("YOOOOO_DESTINATIONS_CONFIG", "").strip()
+    try:
+        config_values = json.loads(raw_config)
+    except json.JSONDecodeError as exc:
+        raise RequestError(503, "invalid_destination_configuration") from exc
+    if (
+        not isinstance(config_values, dict)
+        or config_values.get("version") != 1
+        or not isinstance(config_values.get("destinations"), list)
+    ):
+        raise RequestError(503, "invalid_destination_configuration")
+
+    destinations: dict[str, Destination] = {}
+    for value in config_values["destinations"]:
+        if not isinstance(value, dict):
+            raise RequestError(503, "invalid_destination_configuration")
+        identifier = str(value.get("id", "")).strip()
+        adapter = str(value.get("adapter", "")).strip().lower()
+        chat_id = str(value.get("chat_id", "")).strip()
+        if not re.fullmatch(r"[A-Za-z0-9_-]{1,64}", identifier):
+            raise RequestError(503, "invalid_destination_configuration")
+        if adapter != "telegram":
+            raise RequestError(503, "unsupported_destination_adapter")
+        if not chat_id:
+            raise RequestError(503, "invalid_destination_configuration")
+        if identifier in destinations:
+            raise RequestError(503, "duplicate_destination")
+        destinations[identifier] = Destination(identifier, adapter, chat_id)
+    if not destinations:
+        raise RequestError(503, "invalid_destination_configuration")
+
+    raw_clients = os.environ.get("YOOOOO_NOTIFY_ALLOWED_CLIENTS", "message-hub")
+    allowed_clients = {
+        value.strip()
+        for value in raw_clients.split(",")
+        if value.strip()
+    }
+    if not allowed_clients or any(
+        not re.fullmatch(r"[A-Za-z0-9_-]{1,128}", value)
+        for value in allowed_clients
+    ):
+        raise RequestError(503, "invalid_client_configuration")
+
     return ServerConfig(
-        hmac_key=os.environ.get("NOTIFY_HMAC_KEY", ""),
-        bot_token=os.environ.get("TELEGRAM_BOT_TOKEN", "").strip(),
-        chat_id=os.environ.get("TELEGRAM_CHAT_ID", "").strip(),
+        hmac_key=os.environ.get("YOOOOO_NOTIFY_HMAC_KEY", ""),
+        bot_token=os.environ.get("YOOOOO_TELEGRAM_BOT_TOKEN", "").strip(),
+        destinations=destinations,
+        allowed_clients=allowed_clients,
     )
 
 
@@ -146,6 +203,8 @@ def _authenticate(
     expected = _signature(config.hmac_key, client, timestamp, nonce, body)
     if not hmac.compare_digest(supplied[3:], expected):
         raise RequestError(401, "invalid_signature")
+    if client not in config.allowed_clients:
+        raise RequestError(403, "unknown_client")
     _consume_nonce(nonce, timestamp)
     return client
 
@@ -339,20 +398,18 @@ def _send_photo(
     return message_id
 
 
-def _deliver(payload: dict[str, Any], config: ServerConfig) -> dict[str, Any]:
+def _deliver_telegram(
+    payload: dict[str, Any],
+    config: ServerConfig,
+    destination: Destination,
+    text: str,
+) -> dict[str, Any]:
     version = payload.get("version")
     if version not in (1, 2):
         raise RequestError(400, "unsupported_version")
     request_id = _required_text(payload, "request_id")
     if len(request_id) > 128:
         raise RequestError(400, "invalid_request_id")
-    target = _required_text(payload, "target")
-    if target != "default":
-        raise RequestError(400, "unknown_target")
-    chat_id = config.chat_id
-    title = _required_text(payload, "title", allow_empty=True)
-    body = _required_text(payload, "body", allow_empty=True)
-    text = _message_text(title, body)
 
     message_ids: list[int] = []
     try:
@@ -360,17 +417,24 @@ def _deliver(payload: dict[str, Any], config: ServerConfig) -> dict[str, Any]:
             if "media" in payload or not text:
                 raise RequestError(400, "invalid_payload")
             for chunk in _split_text(text, MAX_MESSAGE_CHARS):
-                message_ids.append(_send_message(config, chat_id, chunk))
+                message_ids.append(_send_message(config, destination.chat_id, chunk))
         else:
             photo, content_type, filename = _decode_photo(payload.get("media"))
             caption_chunks = _split_text(text, MAX_CAPTION_CHARS)
             caption = caption_chunks[0] if caption_chunks else ""
             message_ids.append(
-                _send_photo(config, chat_id, photo, content_type, filename, caption)
+                _send_photo(
+                    config,
+                    destination.chat_id,
+                    photo,
+                    content_type,
+                    filename,
+                    caption,
+                )
             )
             overflow = "\n".join(caption_chunks[1:])
             for chunk in _split_text(overflow, MAX_MESSAGE_CHARS):
-                message_ids.append(_send_message(config, chat_id, chunk))
+                message_ids.append(_send_message(config, destination.chat_id, chunk))
     except TelegramError as exc:
         status = 503 if exc.retryable else 502
         raise RequestError(
@@ -389,6 +453,23 @@ def _deliver(payload: dict[str, Any], config: ServerConfig) -> dict[str, Any]:
     }
 
 
+def _deliver(payload: dict[str, Any], config: ServerConfig) -> dict[str, Any]:
+    destination_name = _required_text(payload, "destination")
+    destination = config.destinations.get(destination_name)
+    if destination is None:
+        raise RequestError(400, "unknown_destination")
+    title = _required_text(payload, "title", allow_empty=True)
+    body = _required_text(payload, "body", allow_empty=True)
+    text = _message_text(title, body)
+    if destination.adapter == "telegram":
+        return _deliver_telegram(payload, config, destination, text)
+    raise RequestError(
+        400,
+        "unsupported_adapter",
+        adapter=destination.adapter,
+    )
+
+
 def _handle(event: dict[str, Any]) -> dict[str, Any]:
     config = load_config()
     method = str(event.get("httpMethod", "")).upper()
@@ -403,6 +484,13 @@ def _handle(event: dict[str, Any]) -> dict[str, Any]:
                 "version": SERVICE_VERSION,
                 "configured": config.configured,
                 "capabilities": ["text", "photo"],
+                "destinations": [
+                    {"id": item.id, "adapter": item.adapter}
+                    for item in sorted(
+                        config.destinations.values(),
+                        key=lambda value: value.id,
+                    )
+                ],
             },
         )
     if path != "/":

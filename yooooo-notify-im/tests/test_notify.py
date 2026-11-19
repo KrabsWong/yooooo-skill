@@ -43,7 +43,7 @@ class EncodePhotoTests(unittest.TestCase):
 
 
 class MainPayloadTests(unittest.TestCase):
-    def test_image_uses_protocol_v2_and_allows_empty_caption(self) -> None:
+    def test_image_uses_client_payload_provider(self) -> None:
         data = b"\x89PNG\r\n\x1a\npayload"
         with tempfile.TemporaryDirectory() as directory:
             image_path = Path(directory) / "test.png"
@@ -52,11 +52,15 @@ class MainPayloadTests(unittest.TestCase):
 
             def capture_send(config, payload, *, timeout):
                 sent_payloads.append(payload)
-                return {"ok": True, "status": "delivered", "request_id": payload["request_id"]}
+                return {"ok": True, "status": "delivered", "request_id": payload["id"]}
 
             argv = ["notify.py", "--image", str(image_path), "--title", "Photo test"]
             with (
-                mock.patch.object(notify, "load_config", return_value=mock.Mock(default_target="default")),
+                mock.patch.object(
+                    notify,
+                    "load_config",
+                    return_value=mock.Mock(default_destination="telegram_default"),
+                ),
                 mock.patch.object(notify, "send_notification", side_effect=capture_send),
                 mock.patch("sys.argv", argv),
                 mock.patch("sys.stdin", io.StringIO("")),
@@ -66,9 +70,17 @@ class MainPayloadTests(unittest.TestCase):
 
         self.assertEqual(exit_code, 0)
         self.assertEqual(len(sent_payloads), 1)
-        self.assertEqual(sent_payloads[0]["version"], 2)
-        self.assertEqual(sent_payloads[0]["body"], "")
-        self.assertEqual(sent_payloads[0]["media"]["content_type"], "image/png")
+        self.assertEqual(sent_payloads[0]["schema_version"], 1)
+        self.assertEqual(sent_payloads[0]["provider"], "client_payload")
+        self.assertEqual(
+            sent_payloads[0]["destination"],
+            "telegram_default",
+        )
+        self.assertEqual(sent_payloads[0]["params"]["body"], "")
+        self.assertEqual(
+            sent_payloads[0]["params"]["media"]["content_type"],
+            "image/png",
+        )
         self.assertEqual(json.loads(stdout.getvalue())["status"], "delivered")
 
 
